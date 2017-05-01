@@ -103,7 +103,7 @@ int             pipewrite(struct pipe*, char*, int);
 
 //PAGEBREAK: 16
 // proc.c
-void            exit(void);
+void            exit(int);		//Edited to return int (STATUS)
 int             fork(void);
 int             growproc(int);
 int             kill(int);
@@ -113,9 +113,12 @@ void            scheduler(void) __attribute__((noreturn));
 void            sched(void);
 void            sleep(void*, struct spinlock*);
 void            userinit(void);
-int             wait(void);
+int             wait(int*);		//Edited to take pointer (STATUS)
+int 			waitpid(int,int*,int);
 void            wakeup(void*);
 void            yield(void);
+void			hello(void);
+int				setpriority(int);
 
 // swtch.S
 void            swtch(struct context**, struct context*);

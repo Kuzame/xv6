@@ -16,14 +16,60 @@ sys_fork(void)
 int
 sys_exit(void)
 {
-  exit();
+  int exit_status;
+
+  if(argint(0, &exit_status) < 0)
+    return -1;
+  argptr(0,(char **) &exit_status, 4);
+  exit(exit_status);
+  
   return 0;  // not reached
 }
+
 
 int
 sys_wait(void)
 {
-  return wait();
+  int val;
+  int *value = &val;
+  int *exit_status = (int*) (&value);;
+	if(argptr(0,(char**) value,4)<0)
+	return -1;
+	if(argptr(0, (void*)&exit_status, sizeof(int*))<0)
+	return -1;
+  return wait(exit_status);
+}
+
+int
+sys_waitpid(void)
+{
+  int pid;
+  int *exit_status;
+  int options;
+  
+  //if(argint(0, &pid) < 0)
+	//return -1;
+  //if(argptr(0, (void*)&exit_status, sizeof(int*))<0)
+  // return -1;	
+  	if(argint(0,&pid)<0) return -1;
+	if(argptr(1,(char**)&exit_status, sizeof(int*))<0) return -1;
+	if(argint(2, &options)<0) return -1;
+	//argptr(0,(char**) &pid, 4); //---------------------################
+	//argptr(1,(char**) &exit_status, 4); //---------------------################
+	//argptr(2,(char**) &options, 4); //---------------------################
+	
+  return waitpid(pid,exit_status,options);
+}
+
+int
+sys_setpriority(void) 
+{
+	int priority;
+	
+	//argptr(0, (char**)&priority, 0);
+	if(argint(0, &priority)<0) return -1;
+    setpriority(priority);
+	return (priority);
 }
 
 int
@@ -77,6 +123,11 @@ sys_sleep(void)
   return 0;
 }
 
+void 
+sys_hello(void)
+{
+    return hello();
+}
 // return how many clock tick interrupts have occurred
 // since start.
 int
@@ -89,3 +140,5 @@ sys_uptime(void)
   release(&tickslock);
   return xticks;
 }
+
+
