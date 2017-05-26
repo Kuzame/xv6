@@ -101,6 +101,7 @@ extern int sys_uptime(void);
 extern int sys_hello(void);
 extern int sys_waitpid(void);
 extern int sys_setpriority(void);
+extern int sys_v2p(void);
 							//Add new System call to change priority
 
 static int (*syscalls[])(void) = {
@@ -128,6 +129,7 @@ static int (*syscalls[])(void) = {
 [SYS_hello]   sys_hello,
 [SYS_waitpid] sys_waitpid,
 [SYS_setpriority] sys_setpriority,
+[SYS_v2p]		sys_v2p,
 };
 
 void

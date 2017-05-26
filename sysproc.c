@@ -8,6 +8,19 @@
 #include "proc.h"
 
 int
+sys_v2p(void)
+{
+	int virtual;
+	int *physical;
+	
+	
+  	if(argint(0,&virtual)<0) return -1;
+  	if(argptr(1,(char**)&physical, sizeof(int*))<0) return -1;
+	
+	return v2p(virtual, physical);
+}
+
+int
 sys_fork(void)
 {
   return fork();
@@ -20,16 +33,17 @@ sys_exit(void)
 
   if(argint(0, &exit_status) < 0)
     return -1;
-  argptr(0,(char **) &exit_status, 4);
+  if(argptr(0,(char **) &exit_status, 4)) return -1;
   exit(exit_status);
   
-  return 0;  // not reached
+  return 0;
 }
 
 
 int
 sys_wait(void)
 {
+	/*
   int val;
   int *value = &val;
   int *exit_status = (int*) (&value);;
@@ -37,6 +51,10 @@ sys_wait(void)
 	return -1;
 	if(argptr(0, (void*)&exit_status, sizeof(int*))<0)
 	return -1;
+  return wait(exit_status); // */
+  
+  int *exit_status;
+  if(argptr(0, (char**)&exit_status, sizeof(int)) < 0) return -1;
   return wait(exit_status);
 }
 
@@ -68,8 +86,8 @@ sys_setpriority(void)
 	
 	//argptr(0, (char**)&priority, 0);
 	if(argint(0, &priority)<0) return -1;
-    setpriority(priority);
-	return (priority);
+    
+	return setpriority(priority);
 }
 
 int

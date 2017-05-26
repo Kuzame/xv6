@@ -47,7 +47,7 @@ walkpgdir(pde_t *pgdir, const void *va, int alloc)
   pde_t *pde;
   pte_t *pgtab;
 
-  pde = &pgdir[PDX(va)];
+  pde = &pgdir[PDX(va)]; //Page Directory Index (10bits)
   if(*pde & PTE_P){
     pgtab = (pte_t*)P2V(PTE_ADDR(*pde));
   } else {
@@ -60,7 +60,7 @@ walkpgdir(pde_t *pgdir, const void *va, int alloc)
     // entries, if necessary.
     *pde = V2P(pgtab) | PTE_P | PTE_W | PTE_U;
   }
-  return &pgtab[PTX(va)];
+  return &pgtab[PTX(va)]; //Page Table Index (10bits)
 }
 
 // Create PTEs for virtual addresses starting at va that refer to

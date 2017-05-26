@@ -259,6 +259,7 @@ wait(int *status)
         p->killed = 0;
         p->state = UNUSED;
         release(&ptable.lock);
+        if(status) //FIXED ------- "pid 4 sh" error ------------------
 		*status = (p->exit_status);		//update status
         return pid;
       }
@@ -273,6 +274,33 @@ wait(int *status)
     // Wait for children to exit.  (See wakeup1 call in proc_exit.)
     sleep(proc, &ptable.lock);  //DOC: wait-sleep
   }
+}
+
+int
+v2p(int virtual, int *physical)
+{
+	pte_t *PTEaddress;
+	int pfn;
+	int offset;
+	pde_t *pde;
+	pte_t *pgtab;
+	pde = &(proc->pgdir[PDX(virtual)]);
+	
+	if(*pde & PTE_P) {
+		pgtab = (pte_t*)P2V(PTE_ADDR(*pde));
+	}
+	else return -1;
+	
+	PTEaddress = &pgtab[PTX(virtual)];
+	
+	pfn = PTE_ADDR(*PTEaddress);
+	offset = virtual & 0x0FFF;
+	
+	if(!(*PTEaddress & PTE_P)) return -1;
+	else 
+	*physical = pfn + offset; 
+	
+	return *physical;
 }
 
 // Wait for a process with desired PID to exit and return its pid.
@@ -377,7 +405,8 @@ scheduler(void)
 
 int
 setpriority(int priorityno) {
-	proc->priorityno = priorityno;
+	if(priorityno >63||priorityno<0) return -1; //check if this shouldn't be here
+	proc->priorityno = priorityno; // if it's fine, then update
 	return priorityno;
 }
 
