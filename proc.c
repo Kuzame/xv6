@@ -72,7 +72,7 @@ found:
   p->context = (struct context*)sp;
   memset(p->context, 0, sizeof *p->context);
   p->context->eip = (uint)forkret;
-
+  p->lastpage = (char*)PGROUNDDOWN(p->tf->esp); //Lab02 Part3
   return p;
 }
 
@@ -122,6 +122,8 @@ growproc(int n)
   uint sz;
 
   sz = proc->sz;
+  if(sz+n > USERTOP - proc->ssize -PGSIZE) return -1; // Lab02 Part 3
+  
   if(n > 0){
     if((sz = allocuvm(proc->pgdir, sz, sz + n)) == 0)
       return -1;
@@ -149,7 +151,7 @@ fork(void)
   }
 
   // Copy process state from p.
-  if((np->pgdir = copyuvm(proc->pgdir, proc->sz)) == 0){
+  if((np->pgdir = copyuvm(proc->lastpage,proc->pgdir, proc->sz)) == 0){
     kfree(np->kstack);
     np->kstack = 0;
     np->state = UNUSED;
@@ -157,6 +159,7 @@ fork(void)
   }
   np->sz = proc->sz;
   np->parent = proc;
+  np->ssize = proc->ssize;
   *np->tf = *proc->tf;
   
 

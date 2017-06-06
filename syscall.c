@@ -14,10 +14,11 @@
 // to a saved program counter, and then the first argument.
 
 // Fetch the int at addr from the current process.
+//######## LAB 02 PART 3 - replaces proc->sz to proc->USERTOP fetchint,str,argptr ######
 int
 fetchint(uint addr, int *ip)
 {
-  if(addr >= proc->sz || addr+4 > proc->sz)
+  if(addr >= proc->sz || addr+4 > proc->sz || addr+4 > USERTOP)
     return -1;
   *ip = *(int*)(addr);
   return 0;
@@ -31,7 +32,7 @@ fetchstr(uint addr, char **pp)
 {
   char *s, *ep;
 
-  if(addr >= proc->sz)
+  if(addr >= proc->sz || addr > USERTOP)
     return -1;
   *pp = (char*)addr;
   ep = (char*)proc->sz;
@@ -58,7 +59,7 @@ argptr(int n, char **pp, int size)
 
   if(argint(n, &i) < 0)
     return -1;
-  if(size < 0 || (uint)i >= proc->sz || (uint)i+size > proc->sz)
+  if((uint) i < PGSIZE || (uint)i >= proc->sz || (uint)i < USERTOP - proc->ssize || i > USERTOP)
     return -1;
   *pp = (char*)i;
   return 0;

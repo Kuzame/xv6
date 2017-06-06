@@ -37,7 +37,7 @@ exec(char *path, char **argv)
     goto bad;
 
   // Load program into memory.
-  sz = 0x1000;
+  sz = PGSIZE-1;//0x1000; //Lab02 part2
   for(i=0, off=elf.phoff; i<elf.phnum; i++, off+=sizeof(ph)){
     if(readi(ip, (char*)&ph, off, sizeof(ph)) != sizeof(ph))
       goto bad;
@@ -60,11 +60,13 @@ exec(char *path, char **argv)
 
   // Allocate two pages at the next page boundary.
   // Make the first inaccessible.  Use the second as the user stack.
+  sz+=PGSIZE;
   sz = PGROUNDUP(sz);
-  if((sz = allocuvm(pgdir, sz, sz + 2*PGSIZE)) == 0)
+  proc->hsize = sz;
+  if((allocuvm(pgdir, USERTOP-PGSIZE, USERTOP)) == 0) //Lab02 part3
     goto bad;
-  clearpteu(pgdir, (char*)(sz - 2*PGSIZE));
-  sp = sz;
+  //clearpteu(pgdir, (char*)(sz - 2*PGSIZE));
+  sp = USERTOP; // Lab02 part 3
 
   // Push argument strings, prepare rest of stack in ustack.
   for(argc = 0; argv[argc]; argc++) {
@@ -97,6 +99,7 @@ exec(char *path, char **argv)
   proc->sz = sz;
   proc->tf->eip = elf.entry;  // main
   proc->tf->esp = sp;
+  proc->ssize = PGSIZE;
   switchuvm(proc);
   freevm(oldpgdir);
   return 0;

@@ -66,6 +66,9 @@ struct proc {
   int exit_status;			   // Exit status
   int waitcount;
   int priorityno;			   // Add Priority int
+  void *lastpage;			//for Lab02 part3
+  uint ssize;				//stack size
+  uint hsize;				//heap start/size
 };
 
 // Process memory is laid out contiguously, low addresses first:
